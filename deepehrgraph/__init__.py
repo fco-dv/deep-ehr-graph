@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import pkg_resources
+import importlib.metadata
 
-__version__ = pkg_resources.get_distribution('deepehrgraph').version
+__version__ = importlib.metadata.version('deepehrgraph')
 
 
 class DeepEhrGraph:

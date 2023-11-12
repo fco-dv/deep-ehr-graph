@@ -23,6 +23,3 @@ coverage = "^7.3.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.scriv]
-version = "literal: deepehrgraph/__init__.py: __version__"

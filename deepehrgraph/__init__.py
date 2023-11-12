@@ -1,10 +1,11 @@
+"""Top-level package for DeepEHRGraph."""
 from __future__ import annotations
 
 import importlib.metadata
 
-__version__ = importlib.metadata.version('deepehrgraph')
+__version__ = importlib.metadata.version("deepehrgraph")
 
 
-class DeepEhrGraph:
-    def __init__(self) -> None:
-        pass
+def print_version() -> None:
+    """Prints the version of the package."""
+    print(__version__)

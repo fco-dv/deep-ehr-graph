@@ -37,4 +37,4 @@ jobs:
         if: "matrix.python-version == '3.11'"
         uses: codecov/codecov-action@v2
         with:
-          fail_ci_if_error: true
+          fail_ci_if_error: false

@@ -25,4 +25,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.scriv]
-version = "literal: pyproject.toml: project.version"
+version = "literal: deepehrgraph/__init__.py: __version__"

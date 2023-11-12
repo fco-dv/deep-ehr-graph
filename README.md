@@ -19,7 +19,3 @@
 [build-url]: https://github.com/fco-dv/deep-ehr-graph/actions/workflows/build.yaml
 [coverage-image]: https://codecov.io/gh/fco-dv/deep-ehr-graph/branch/main/graph/badge.svg
 [coverage-url]: https://codecov.io/gh/fco-dv/deep-ehr-graph/
-[stars-image]: https://img.shields.io/github/stars/fco-dv/deep-ehr-graph/
-[stars-url]: https://github.com/fco-dv/deep-ehr-graph
-[versions-image]: https://img.shields.io/pypi/pyversions/deepehrgraph/
-[versions-url]: https://pypi.org/project/deepehrgraph/

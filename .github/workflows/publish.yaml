@@ -1,4 +1,4 @@
-ame: Publish to PyPI
+name: Publish deepehrgraph to PyPI
 
 on:
   release:

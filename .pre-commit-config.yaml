@@ -22,10 +22,10 @@ repos:
     hooks:
     - id: flake8
       additional_dependencies: [mccabe]
-      args: ["--max-line-length", "88", "--max-complexity", "10", "--extend-ignore", "E203, W503", "--exclude", "deepehrgraph/dataset/legacy/*" ]
+      args: ["--max-line-length", "88", "--max-complexity", "10", "--extend-ignore", "E203, W503, W0108, W1203", "--exclude", "deepehrgraph/dataset/legacy/*" ]
   - repo: https://github.com/PyCQA/pylint/
     rev: v2.14.5
     hooks:
     - id: pylint
-      args: ["--disable=E0401,E1101"]
+      args: ["--disable=E0401,E1101,C0103, W0108, R0914, W1203, W0613, W0612, R0402, R1725, R0903"]
       exclude: 'deepehrgraph/dataset/legacy/.*|tests/.*' # Prevent files in tests/ to be passed in to pylint.

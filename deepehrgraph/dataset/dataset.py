@@ -1,10 +1,13 @@
 """ Generate mimic iv demo dataset as csv file. """
+import argparse
 import io
 import os  # pylint: disable=E1101
 import zipfile
+from dataclasses import dataclass, field
 
 import pandas as pd  # pylint: disable=E0401
 import requests
+from sklearn.preprocessing import LabelEncoder
 
 from deepehrgraph.dataset.legacy.helpers import (
     add_age,
@@ -25,6 +28,71 @@ from deepehrgraph.dataset.legacy.helpers import (
     read_patients_table,
 )
 from deepehrgraph.dataset.legacy.medcode_utils import commorbidity
+from deepehrgraph.logger import get_logger
+
+logger = get_logger(__name__)
+
+
+@dataclass
+class EHDRDataset:
+    """Class for EHDR dataset."""
+
+    features: pd.DataFrame = field(default="false", init=False, repr=False)
+    outcomes: pd.DataFrame = field(default="false", init=False, repr=False)
+    filename: str = field(
+        default="mimic_iv_demo_master_dataset.csv", init=True, repr=True
+    )
+    dir_name: str = field(default="data", init=True, repr=True)
+    download: bool = field(default=False, init=True, repr=True)
+    encode_categorical_features: bool = field(default=True, init=True, repr=True)
+
+    def __hash__(self) -> int:
+        return hash(self.filename)
+
+    def __post_init__(self):
+        """Initialize EHDR dataset."""
+        if self.download:
+            data = create_master_dataset(
+                download_mimiciv_compressed_dataset(self.dir_name),
+                self.dir_name,
+                self.filename,
+            )
+        else:
+            data = pd.read_csv(os.path.join(self.dir_name, self.filename))
+
+        self.features = self._features(data)
+        self.outcomes = self._outcomes(data)
+
+        if self.encode_categorical_features:
+            label_encoder = LabelEncoder()
+            categorical_features = self.features.select_dtypes(
+                include=["object", "category"]
+            ).columns
+            self.features[categorical_features] = self.features[
+                categorical_features
+            ].apply(lambda x: label_encoder.fit_transform(x))
+
+    @staticmethod
+    def _outcomes(data) -> pd.DataFrame:
+        """Get outcomes."""
+        labels_prefix = ["outcome_"]
+        labels_cols = [
+            col
+            for col in data.columns
+            if any(col.startswith(prefix) for prefix in labels_prefix)
+        ]
+        return data[labels_cols]
+
+    @staticmethod
+    def _features(data) -> pd.DataFrame:
+        """Get features."""
+        features_prefix = ["cci_", "eci_", "n_", "age", "gender"]
+        features_cols = [
+            col
+            for col in data.columns
+            if any(col.startswith(prefix) for prefix in features_prefix)
+        ]
+        return data[features_cols]
 
 
 def download_mimiciv_compressed_dataset(dir_name: str = "data") -> str:
@@ -47,6 +115,7 @@ def download_mimiciv_compressed_dataset(dir_name: str = "data") -> str:
     response = requests.get(url, stream=True)
 
     # Check if the download was successful
+    logger.info("Downloading mimic iv demo dataset...")
     if response.status_code == 200:
         # Get the file from the HTTP response
         with zipfile.ZipFile(io.BytesIO(response.content)) as zip_file:
@@ -57,7 +126,11 @@ def download_mimiciv_compressed_dataset(dir_name: str = "data") -> str:
     return os.path.join(dir_name, "mimic-iv-clinical-database-demo-2.2")
 
 
-def create_master_dataset(mimic_iv_path: str, output_path: str = "data"):
+def create_master_dataset(
+    mimic_iv_path: str,
+    output_path: str = "data",
+    filename: str = "mimic_iv_demo_master_dataset.csv",
+):
     """
     Generate master mimic iv demo dataset as csv file.
 
@@ -65,6 +138,8 @@ def create_master_dataset(mimic_iv_path: str, output_path: str = "data"):
     :param str output_path: path to the output directory
     :return: None
     """
+    logger.info("Creating mimic iv demo master dataset")
+
     icu_transfer_timerange = 12
     next_ed_visit_timerange = 3
 
@@ -166,13 +241,21 @@ def create_master_dataset(mimic_iv_path: str, output_path: str = "data"):
     # This function takes about 10 min
     df_master = commorbidity(df_master, df_diagnoses, df_admissions, timerange=356 * 5)
 
-    # Output master_dataset
-    df_master.to_csv(
-        os.path.join(output_path, "mimic_iv_demo_master_dataset.csv"), index=False
-    )
+    # Reset dataframe index
+    df_master.reset_index(drop=True, inplace=True)
+
+    # Store master_dataset as a single csv
+    if not os.path.exists(output_path):
+        os.mkdir(output_path)
+
+    df_master.to_csv(os.path.join(output_path, filename), index=False)
+
+    return df_master
 
 
-def generate_dataset(dir_name: str = "data"):
+def generate_dataset(namespace: argparse.Namespace) -> None:
     """Generate mimic iv demo dataset as csv file."""
-    mimic_iv_path = download_mimiciv_compressed_dataset(dir_name)
-    create_master_dataset(mimic_iv_path)
+    logger.info(f"Input arguments : {namespace}")
+    EHDRDataset(
+        dir_name="data", filename="mimic_iv_demo_master_dataset.csv", download=True
+    )

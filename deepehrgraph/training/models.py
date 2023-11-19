@@ -18,7 +18,6 @@ class BinaryClassificationModel(nn.Module):
         """Init."""
         super(BinaryClassificationModel, self).__init__()
         self.layer1 = nn.Linear(input_size, hidden_size)
-        self.batch_norm = nn.BatchNorm1d(hidden_size)
         self.relu = nn.ReLU()
         self.layer2 = nn.Linear(hidden_size, output_size)
         self.sigmoid = nn.Sigmoid()
@@ -26,7 +25,6 @@ class BinaryClassificationModel(nn.Module):
     def forward(self, x):
         """Forward pass."""
         x = self.layer1(x)
-        x = self.batch_norm(x)
         x = self.relu(x)
         x = self.layer2(x)
         x = self.sigmoid(x)

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "deepehrgraph"
-version = "0.3.2"
+version = "0.3.3"
 description = ""
 authors = ["francois.cokelaer <francois.cokelaer@gmail.com>"]
 readme = "README.md"
@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">= 3.10, < 3.13"
 lightning = "^2.1.1"
-scikit-learn = "^1.3.2"
+scikit-learn = "^1.2.2"
 statsmodels = "^0.14.0"
 pandas = "^2.1.3"
 matplotlib = "^3.8.1"

@@ -118,8 +118,35 @@ We will try to address this situation by using feature selection techniques.
 Based on these first results we will try to predict the following outcome: `in-hospital mortality`. 
 Note that we are facing an outcome class imbalance problem which can result in poor results while trying to predict this outcome, we will need to add a pre-processing for that.
 
-### Feature selections and Outcomes class imbalance.
+## PCA for Collinear Feature Reduction
 
+### Overview
+
+Principal Component Analysis (PCA) is a technique for reducing the dimensionality of your dataset while retaining most of its original information. It's particularly useful for handling collinear features and improving model performance.
+
+### Understanding Cumulative Variance
+
+- **Explained Variance Ratio:**
+  - Each principal component explains a certain proportion of the total variance. The cumulative explained variance is the sum of these individual variances, representing the overall information retained.
+
+- **Choosing Components:**
+  - Decide on the number of components based on the desired cumulative explained variance (e.g., 95%). This choice balances dimensionality reduction with information preservation.
+
+`Cumulative Explained Variance`
+![Cumulative Explained Variance](assets/explained_variance.png)
+
+### Expectations for Final Correlation Matrix
+
+- **Correlation Among Features:**
+  - The final correlation matrix of the PCA result features ideally shows reduced correlations between features. Principal components are designed to be orthogonal, minimizing multicollinearity.
+
+- **Near-Zero Correlations:**
+  - Aim for near-zero correlations in the PCA result features, indicating that each component captures unique information.
+
+`Correlation Matrix PCA`
+![Correlation Matrix PCA](assets/correlation_pca.png)
+
+**37 features will be selected for training the model.** This number is based on the cumulative explained variance of 95%.
 
 ## Models architecture
 

@@ -13,7 +13,7 @@ from deepehrgraph.logger import get_logger
 
 
 def test_version():
-    assert __version__ == "0.3.0"
+    assert __version__ == "0.3.4"
 
 
 def test_download_mimiciv_compressed_dataset():

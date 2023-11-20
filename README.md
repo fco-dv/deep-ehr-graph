@@ -17,70 +17,111 @@
 
 ## Description
 This project aims at demonstring deep learning methodologies for EHR data. 
-The use case is to predict different outcomes for patients in the ICU. The dataset is from (MIMIC-IV demo) 
+The use case is to predict different outcomes for patients in the ICU. The dataset is from [MIMIC-IV demo](https://physionet.org/content/mimic-iv-demo/2.2/) containing de-identified health-related data from 140 patients admitted to critical care units. 
 
 ## Installation
-### With pip
+### Install the latest package version with pip
 ```bash
 pip3 install -U deepehrgraph
 ```
-
+### Commands
+Display available subcommands:
+```bash
+python3 -m deepehrgraph.main --help
+```
 
 ## Dataset
-(mimic iv demo dataset)[https://physionet.org/content/mimic-iv-demo/2.2/]
+The dataset description is the [mimic iv demo dataset](https://physionet.org/content/mimic-iv-demo/2.2/).
+
+This dataset contains de-identified health-related data from 140 patients admitted to critical care units. The data includes demographics, vital signs, laboratory tests, medications, and more. The data is stored in a relational database, and the data schema is described in the [MIMIC-IV documentation](https://mimic.mit.edu/docs/iv/).
+
+Note that we only have access to the [hosp](https://mimic.mit.edu/docs/iv/modules/hosp/) and [icu](https://mimic.mit.edu/docs/iv/modules/icu/) compressed files.
+
 ### Generate main dataset from compressed files
+
 ```bash
-python3 -m deepehrgraph.dataset.dataset_generator
+python -m deepehrgraph.main dataset
 ```
-This step will download the archive files from physionet and generate the master dataset in the `data` folder.
-CCI and ECI indexes are calculated and added to the dataset.
 
-### Features 
-In the context of medical studies, CCI (Charlson Comorbidity Index) and ECI (Elixhauser Comorbidity Index)
-are tools used to assess the burden of comorbidities in individuals.
-Comorbidities refer to the presence of additional health conditions in a patient alongside the primary
-condition under investigation. Both CCI and ECI are designed to quantify and summarize the impact of comorbidities on patient health.
-
-Charlson Comorbidity Index (CCI):
-
-Purpose: Developed by Dr. Mary Charlson, the CCI is a widely used tool to predict the 10-year mortality for patients with multiple comorbidities. It assigns weights to various comorbid conditions based on their impact on mortality.
-Calculation: Each comorbid condition is assigned a score, and the total CCI score is the sum of these individual scores. The higher the CCI score, the greater the burden of comorbidities.
-Conditions: The CCI includes conditions such as myocardial infarction, heart failure, dementia, diabetes, liver disease, and others.
-
-Elixhauser Comorbidity Index (ECI):
-
-Purpose: The ECI, developed by Dr. Claudia Elixhauser, is another comorbidity index used to assess the impact of comorbid conditions on healthcare outcomes. It is often employed in administrative databases and research studies.
-Calculation: Similar to the CCI, the ECI assigns weights to comorbid conditions. However, the ECI covers a broader range of conditions and is often used for risk adjustment in research studies.
-Conditions: The ECI includes a comprehensive list of conditions such as hypertension, obesity, renal failure, coagulopathy, and others.
+This step will download the archive files from physionet and generate the master dataset in the `data` folder by default as a csv file called `mimic_iv_demo_master_dataset.csv`.
 
 
-Selected features: 
-    
-    ['gender', 'age', 'n_ed_30d', 'n_ed_90d', 'n_ed_365d', 'n_hosp_30d',
-       'n_hosp_90d', 'n_hosp_365d', 'n_icu_30d', 'n_icu_90d', 'n_icu_365d',
-       'cci_MI', 'cci_CHF', 'cci_PVD', 'cci_Stroke', 'cci_Dementia',
-       'cci_Pulmonary', 'cci_Rheumatic', 'cci_PUD', 'cci_Liver1', 'cci_DM1',
-       'cci_DM2', 'cci_Paralysis', 'cci_Renal', 'cci_Cancer1', 'cci_Liver2',
-       'cci_Cancer2', 'cci_HIV', 'eci_CHF', 'eci_Arrhythmia', 'eci_Valvular',
-       'eci_PHTN', 'eci_PVD', 'eci_HTN1', 'eci_HTN2', 'eci_Paralysis',
-       'eci_NeuroOther', 'eci_Pulmonary', 'eci_DM1', 'eci_DM2',
-       'eci_Hypothyroid', 'eci_Renal', 'eci_Liver', 'eci_PUD', 'eci_HIV',
-       'eci_Lymphoma', 'eci_Tumor2', 'eci_Tumor1', 'eci_Rheumatic',
-       'eci_Coagulopathy', 'eci_Obesity', 'eci_WeightLoss', 'eci_FluidsLytes',
-       'eci_BloodLoss', 'eci_Anemia', 'eci_Alcohol', 'eci_Drugs',
-       'eci_Psychoses', 'eci_Depression']
+Several pre-computation steps are done in order to generate this master dataset:
+    - CCI and ECI indexes are calculated and added to the dataset.
+    - Outcomes for patients are calculed and added to the date.
 
 
-### Outcomes
+These pre-computations have been adapted from this [repository](https://github.com/nliulab/mimic4ed-benchmark) specifically for the MIMIC-IV demo dataset.
 
-### Data preprocessing
+Categorical features are identified and encoded with [LabelEncoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html).
 
-### Feature selection
+In the context of medical studies, CCI (Charlson Comorbidity Index) and ECI (Elixhauser Comorbidity Index) are tools used to assess the burden of comorbidities in individuals.
+Comorbidities refer to the presence of additional health conditions in a patient alongside the primary condition under investigation. Both CCI and ECI are designed to quantify and summarize the impact of comorbidities on patient health. **These features seem to be good candidates for our prediction task.**
 
 
-## Use Case
+### EDA : Features and oucomes analysis
+Run simple EDA with this command and you will get:
+-  basic information about dataset datatypes
+-  missing values count
+-  correlation matrix
+-  outcomes distribution
 
-## Models
+```bash
+python -m deepehrgraph.main eda
+```
+
+`Correlation Matrix`
+![Correlation Matrix](assets/correlation_matrix.png)
+
+
+Here are the 25 top correlated features:
+```
+| Variable1        | Variable2        | Correlation |
+|------------------|------------------|-------------|
+| cci_Renal        | eci_Renal        | 1.000000    |
+| cci_Rheumatic    | eci_Rheumatic    | 1.000000    |
+| n_ed_365d        | n_icu_365d       | 1.000000    |
+| cci_Cancer2      | eci_Tumor2       | 1.000000    |
+| cci_Paralysis    | eci_Paralysis    | 1.000000    |
+| n_ed_30d         | n_icu_30d        | 1.000000    |
+| cci_PUD          | eci_PUD          | 1.000000    |
+| n_ed_90d         | n_icu_90d        | 1.000000    |
+| cci_Pulmonary    | eci_Pulmonary    | 1.000000    |
+| cci_CHF          | eci_CHF          | 1.000000    |
+| cci_Dementia     | cci_Paralysis    | 1.000000    |
+| cci_PVD          | eci_PVD          | 1.000000    |
+| cci_Dementia     | eci_Paralysis    | 1.000000    |
+| cci_DM1          | eci_DM2          | 0.971825    |
+| cci_Cancer1      | eci_Tumor1       | 0.949788    |
+| cci_DM2          | eci_DM1          | 0.931891    |
+| n_icu_90d        | n_icu_365d       | 0.927516    |
+| n_ed_90d         | n_icu_365d       | 0.927516    |
+| n_ed_365d        | n_icu_90d        | 0.927516    |
+| n_ed_90d         | n_ed_365d        | 0.927516    |
+| cci_Liver1       | eci_Liver        | 0.875261    |
+| eci_HTN1         | eci_Renal        | 0.815725    |
+| cci_Renal        | eci_HTN1         | 0.815725    |
+| n_hosp_30d       | n_hosp_90d       | 0.807012    |
+| n_ed_30d         | n_ed_90d         | 0.795026    |
+```
+
+Some features are highly correlated which could lead to poor model performance:
+- instability that make difficult to interpret the individual impact of each variable on the target.
+- model instability, increased sensitivity to small changes in the data
+- overfitting
+
+We will try to address this situation by using feature selection techniques.
+
+`Outcomes Repartition`
+![Outcomes Repartition](assets/outcomes_repartition.png)
+
+Based on these first results we will try to predict the following outcome: `in-hospital mortality`. 
+Note that we are facing an outcome class imbalance problem which can result in poor results while trying to predict this outcome, we will need to add a pre-processing for that.
+
+### Feature selections and Outcomes class imbalance.
+
+
+## Models architecture
 
 
 ## Resources

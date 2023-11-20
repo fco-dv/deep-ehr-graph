@@ -149,16 +149,86 @@ Principal Component Analysis (PCA) is a technique for reducing the dimensionalit
 **37 features will be selected for training the model.** This number is based on the cumulative explained variance of 95%.
 
 ## Models architecture
+# Binary Classification Model
 
+The `BinaryClassificationModel` is a simple neural network designed for binary classification tasks. It utilizes the PyTorch framework for building and training neural networks.
+
+## Model Architecture for classification
+
+### Initialization
+The model is initialized with the following parameters:
+- `input_size`: Number of features in the input data.
+- `hidden_size`: Number of neurons in the hidden layer.
+- `output_size`: Number of neurons in the output layer (typically 1 for binary classification).
+
+### Layers
+1. **Layer 1 (`self.layer1`):**
+   - Type: Linear (Fully Connected) Layer
+   - Input: `input_size`
+   - Output: `hidden_size`
+   - Activation Function: None (linear transformation)
+
+2. **ReLU Activation (`self.relu`):**
+   - Type: Rectified Linear Unit (ReLU)
+   - Activation Function: ReLU
+   - Introduces non-linearity to the model.
+
+3. **Layer 2 (`self.layer2`):**
+   - Type: Linear Layer
+   - Input: `hidden_size`
+   - Output: `output_size`
+   - Activation Function: None (linear transformation)
+
+4. **Sigmoid Activation (`self.sigmoid`):**
+   - Type: Sigmoid Activation
+   - Activation Function: Sigmoid
+   - Converts the output to a probability between 0 and 1, suitable for binary classification.
+
+`input_size` will correspond to the number of previsouly selected PCA features.
+
+## Training
+
+Pytorch Lightning is used as a framework for training the model. It provides a high-level interface for PyTorch that abstracts away the boilerplate code needed for training and validation. Here are some of the features that Pytorch Lightning provides and that are used in this code:
+- Automatic GPU/CPU device placement
+- Automatic training and validation loop
+- Automatic checkpointing
+- Automatic logging
+
+
+
+```bash
+python -m deepehrgraph.main train
+```
+
+### Features Selection
+We are using the PCA technique to reduce the number of features and address the collinearity problem.
+We are keeping the 37 first components that explain 95% of the variance.
+
+### Data Split and Oversampling
+The dataset is split into train and validation sets with a 80/20 ratio.
+The train set is oversampled to address the class imbalance problem for the `in-hospital mortality` outcome.
+
+### Loss Function
+We are using the Binary Cross Entropy Loss function for this binary classification task.
+
+### Optimizer
+We are using the Adam optimizer for this task with standard parameter.
+
+### Metrics
+We are using the following metrics to evaluate the model performance for both train and validation sets:
+- Loss
+- Accuracy
+- Precision
+- Recall
+- F1 Score
 
 ## Resources
-https://mimic.mit.edu/docs/iv/modules/hosp/
-Xie F, Zhou J, Lee JW, Tan M, Li SQ, Rajnthern L, Chee ML, Chakraborty B, Wong AKI, Dagan A, Ong MEH, Gao F, Liu N. Benchmarking emergency department prediction models with machine learning and public electronic health records. Scientific Data 2022 Oct; 9: 658. <https://doi.org/10.1038/s41597-022-01782-9>
-https://www.sciencedirect.com/science/article/pii/S2352914823001089
-https://github.com/healthylaife/MIMIC-IV-Data-Pipeline#How-to-use-the-pipeline
-
-###ML
-https://scikit-learn.org/stable/common_pitfalls.html
+  https://physionet.org/content/mimic-iv-demo/2.2/
+  https://mimic.mit.edu/docs/iv/modules/hosp/
+  https://mimic.mit.edu/docs/iv/modules/icu/
+  https://www.sciencedirect.com/science/article/pii/S2352914823001089
+  https://github.com/healthylaife/MIMIC-IV-Data-Pipeline#How-to-use-the-pipeline
+  https://scikit-learn.org/stable/common_pitfalls.html
 
 ## Contributing
 ### Install dependencies

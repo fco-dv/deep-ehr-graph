@@ -49,7 +49,7 @@ def _get_top_abs_correlations(dataframe, n=5):
     return au_corr[0:n]
 
 
-def _display_outcomes_class_repartition(outcomes: pd.DataFrame):
+def display_outcomes_class_repartition(outcomes: pd.DataFrame):
     """Display outcomes class repartition."""
     fig, axes = plt.subplots(1, len(list(OutcomeType)), figsize=(15, 4))
     for i, outcome in enumerate(list(OutcomeType)):
@@ -83,4 +83,4 @@ def eda(namespace: argparse.Namespace) -> None:
     logger.info(f"Top {n} Correlated features : \n {top_abs_correlated}")
 
     logger.info("Display outcomes class repartition:")
-    _display_outcomes_class_repartition(ehr_dataset.outcomes)
+    display_outcomes_class_repartition(ehr_dataset.outcomes)

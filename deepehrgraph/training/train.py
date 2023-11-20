@@ -4,13 +4,14 @@ import argparse
 import os
 
 import lightning as L
-from imblearn.over_sampling import SMOTE
+from imblearn.over_sampling import RandomOverSampler
 from lightning.pytorch.callbacks import ModelCheckpoint, ModelSummary
 from lightning.pytorch.loggers import TensorBoardLogger
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 
 from deepehrgraph.dataset.dataset import EHDRDataset
+from deepehrgraph.dataset.features_selection import reduce_colinear_features
 from deepehrgraph.logger import get_logger
 from deepehrgraph.training.dataset import TorchEHRDataset
 from deepehrgraph.training.models import EHROutcomeClassifier
@@ -41,25 +42,36 @@ def train(namespace: argparse.Namespace) -> None:
 
     logger.info(f"Training model for outcome {outcome.value} and {max_epochs} epochs")
 
+    logger.info("Features selection step")
+    features = reduce_colinear_features(
+        features=ehr_master_dataset.features,
+        desired_explained_variance=0.95,
+        display_plot=False,
+    )
+
     # Train / Test split
     X_train, X_test, y_train, y_test = train_test_split(
-        ehr_master_dataset.features,
+        features,
         ehr_master_dataset.outcomes[outcome.value],
-        test_size=0.2,
+        test_size=0.3,
         random_state=42,
     )
 
-    # SMOTE generates synthetic samples for the minority class,
-    # effectively oversampling it.
-    smote = SMOTE(sampling_strategy="auto", random_state=42)
-    X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
+    # Oversampling the minority class using RandomOverSampler
+    ros = RandomOverSampler(random_state=42)
+    X_train_resampled, y_train_resampled = ros.fit_resample(X_train, y_train)
+
+    logger.info(
+        "Check that target outcome is balanced after resampling  training dataset"
+    )
+    logger.info(y_train_resampled.describe())
 
     # Torch Dataset
     ehr_train_dataset = TorchEHRDataset(X_train_resampled, y_train_resampled)
     ehr_valid_dataset = TorchEHRDataset(X_test, y_test)
 
-    ehr_train_dataloader = DataLoader(ehr_train_dataset, batch_size=4)
-    ehr_valid_dataloader = DataLoader(ehr_valid_dataset, batch_size=1)
+    ehr_train_dataloader = DataLoader(ehr_train_dataset)
+    ehr_valid_dataloader = DataLoader(ehr_valid_dataset)
 
     model = EHROutcomeClassifier()
 

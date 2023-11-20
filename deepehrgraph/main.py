@@ -45,6 +45,13 @@ def main() -> None:
         default="data",
         help="Directory name to store the dataset.",
     )
+    parser_feat_selection.add_argument(
+        "--desired-explained-variance",
+        type=float,
+        default=0.95,
+        help="Desired explained variance threshold (default is 0.95) \
+          for features reduction.",
+    )
     parser_feat_selection.set_defaults(func=features_selection)
 
     parser_train = subparsers.add_parser(

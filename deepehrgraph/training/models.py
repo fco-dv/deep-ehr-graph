@@ -34,11 +34,9 @@ class BinaryClassificationModel(nn.Module):
 class EHROutcomeClassifier(L.LightningModule):
     """EHROutcomeClassifier network model."""
 
-    def __init__(self, nb_input_features=59, nb_output_features=1):
+    def __init__(self, nb_input_features=37, nb_output_features=1):
         super().__init__()
-        self.model = BinaryClassificationModel(
-            nb_input_features, 10, nb_output_features
-        )
+        self.model = BinaryClassificationModel(nb_input_features, 5, nb_output_features)
 
     def training_step(self, batch, batch_idx):
         """Training step."""

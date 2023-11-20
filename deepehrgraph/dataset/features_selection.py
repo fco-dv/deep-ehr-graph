@@ -39,7 +39,7 @@ def select_kbest_features(
     return selected_feature_names
 
 
-def _reduce_colinear_features(
+def reduce_colinear_features(
     features, desired_explained_variance=0.95, display_plot=True
 ):
     """
@@ -108,7 +108,7 @@ def features_selection(namespace: argparse.Namespace) -> None:
     logger.info("Load EHRDataset:")
     ehr_dataset = EHDRDataset(download=False)
 
-    reduced_features = _reduce_colinear_features(
+    reduced_features = reduce_colinear_features(
         features=ehr_dataset.features,
         desired_explained_variance=0.95,
         display_plot=True,

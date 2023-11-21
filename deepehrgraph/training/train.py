@@ -39,6 +39,7 @@ def train(namespace: argparse.Namespace) -> None:
     ehr_master_dataset = EHDRDataset(download=False)
     outcome = namespace.outcome
     max_epochs = namespace.max_epochs
+    oversample_outcome = namespace.oversample_outcome
 
     logger.info(f"Training model for outcome {outcome.value} and {max_epochs} epochs")
 
@@ -53,21 +54,22 @@ def train(namespace: argparse.Namespace) -> None:
     X_train, X_test, y_train, y_test = train_test_split(
         features,
         ehr_master_dataset.outcomes[outcome.value],
-        test_size=0.3,
+        test_size=0.2,
         random_state=42,
     )
 
-    # Oversampling the minority class using RandomOverSampler
-    ros = RandomOverSampler(random_state=42)
-    X_train_resampled, y_train_resampled = ros.fit_resample(X_train, y_train)
+    if oversample_outcome:
+        # Oversampling the minority class using RandomOverSampler
+        ros = RandomOverSampler(random_state=42)
+        X_train, y_train = ros.fit_resample(X_train, y_train)
 
-    logger.info(
-        "Check that target outcome is balanced after resampling  training dataset"
-    )
-    logger.info(y_train_resampled.describe())
+        logger.info(
+            "Check that target outcome is balanced after resampling  training dataset"
+        )
+        logger.info(y_train.describe())
 
     # Torch Dataset
-    ehr_train_dataset = TorchEHRDataset(X_train_resampled, y_train_resampled)
+    ehr_train_dataset = TorchEHRDataset(X_train, y_train)
     ehr_valid_dataset = TorchEHRDataset(X_test, y_test)
 
     ehr_train_dataloader = DataLoader(ehr_train_dataset)

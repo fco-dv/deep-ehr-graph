@@ -67,6 +67,12 @@ def main() -> None:
     parser_train.add_argument(
         "--max-epochs", type=int, default=50, help="Max number of epochs."
     )
+    parser_train.add_argument(
+        "--oversample-outcome",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Upsample the minority class using RandomOverSampler",
+    )
     parser_train.set_defaults(func=train)
 
     args = parser.parse_args()
